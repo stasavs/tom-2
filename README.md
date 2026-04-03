@@ -13,7 +13,7 @@ rs.math.oop.gXX.pYY.opisPrimera
 где је `XX` редни број главе (01–18), `YY` редни број примера у глави, а `opisPrimera` кратак опис.
 
 ```
-tom2/
+tom-2/
 ├── src/                  # Изворни код примера
 │   └── rs/math/oop/
 │       ├── g01/          # Глава 1 — Рефлексија
@@ -21,32 +21,11 @@ tom2/
 │       ├── ...
 │       └── g18/          # Глава 18 — REST веб сервиси
 ├── resources/            # Ресурсне датотеке (XML, properties, persistence.xml)
-├── lib/                  # Спољашње JAR библиотеке
-│   ├── h2/               # H2 база података
-│   ├── hibernate/        # Hibernate (JPA провајдер)
-│   ├── hikari/           # HikariCP скуп конекција
-│   ├── jackson/          # Jackson JSON библиотека
-│   ├── javafx/           # JavaFX (mac/, win/, linux/)
-│   ├── jersey/           # Jersey JAX-RS + Grizzly HTTP сервер
-│   ├── junit/            # JUnit 5 (Jupiter + Platform)
-│   └── servlet/          # Jakarta Servlet API
+├── build.gradle          # Gradle конфигурација (аутоматско преузимање библиотека)
+├── gradlew               # Gradle wrapper за macOS/Linux
+├── gradlew.bat           # Gradle wrapper за Windows
 └── README.md
 ```
-
-## Библиотеке (lib/)
-
-Директоријум `lib/` садржи спољашње библиотеке (JAR датотеке) потребне за примере у одређеним главама.
-
-| Директоријум | Главе | Садржај |
-|----------|-------|---------|
-| `h2` | 14 | H2 база података — драјвер за JDBC примере са in-memory базом (`jdbc:h2:mem:`) |
-| `hibernate` | 16 | Hibernate (JPA провајдер) и пратеће библиотеке за ORM примере |
-| `hikari` | 14 | HikariCP — скуп конекција са базом података |
-| `jackson` | 7, 18 | Jackson Databind — серијализација и десеријализација JSON докумената |
-| `javafx` | 5 | JavaFX графички оквир; садржи три поддиректоријума (`mac/`, `win/`, `linux/`) — изабрати онај који одговара платформи |
-| `jersey` | 18 | Jersey (JAX-RS имплементација) и Grizzly HTTP сервер за REST примере |
-| `junit` | 13 | JUnit 5 (Jupiter + Platform) — оквир за јединично тестирање |
-| `servlet` | 17 | Jakarta Servlet API — потребан за компилацију сервлет примера |
 
 ## Ресурси (resources/)
 
@@ -64,10 +43,24 @@ tom2/
 
 - JDK 25 или новији
 - IntelliJ IDEA 2026.1 (или Eclipse 2026-03)
+- Интернет конекција (за прво преузимање библиотека)
 
-## Подешавање пројекта у IntelliJ IDEA — корак по корак
+> **Напомена:** Gradle НЕ мора да се инсталира ручно. Пројекат садржи Gradle wrapper (`gradlew` / `gradlew.bat`) који аутоматски преузима и инсталира потребну верзију Gradle-а при првом покретању.
 
-Пошто `.idea/` конфигурација није укључена у репозиторијум, пројекат треба подесити ручно. Следећа упутства важе за **све платформе** (Windows, macOS, Linux).
+## Брзи почетак (командна линија)
+
+Ако желите само да компајлирате и проверите да све ради, без IDE-а:
+
+```bash
+git clone https://github.com/matf-oop-java/tom-2.git
+cd tom-2
+./gradlew build        # macOS / Linux
+gradlew.bat build      # Windows
+```
+
+Gradle ће аутоматски преузети све потребне библиотеке (JUnit, Jackson, Hibernate, Jersey, JavaFX итд.) и компајлирати све примере.
+
+## Подешавање пројекта у IntelliJ IDEA
 
 ### Корак 1 — Преузимање и отварање
 
@@ -78,8 +71,8 @@ tom2/
 2. Покрените IntelliJ IDEA
 3. Изаберите **File → Open...**
 4. Пронађите клонирани директоријум и кликните **Open**
-5. Када IntelliJ пита о типу пројекта, изаберите **Open as Project**
-6. Сачекајте да се индексирање заврши (трака напретка при дну екрана)
+5. IntelliJ ће препознати `build.gradle` и понудити да увезе пројекат као Gradle пројекат — кликните **OK** / **Trust Project**
+6. Сачекајте да IntelliJ заврши увоз и индексирање (трака напретка при дну екрана) — током овог процеса Gradle аутоматски преузима све библиотеке
 
 ### Корак 2 — Подешавање JDK
 
@@ -87,53 +80,9 @@ tom2/
 2. У одељку **Project**:
    - **SDK**: изаберите JDK 25 (ако није на листи, кликните **Add SDK → JDK** и пронађите директоријум где је JDK 25 инсталиран)
    - **Language level**: изаберите `25`
-   - **Compiler output**: унесите путању `out` (нпр. путања_до_пројекта/out)
-3. Кликните **Apply**
+3. Кликните **Apply**, затим **OK**
 
-### Корак 3 — Означавање изворних директоријума
-
-У истом прозору **Project Structure**, одаберите одељак **Modules**:
-
-1. Ако не постоји модул, кликните **+** → **New Module** → **Java** → **Next** → **Finish**
-2. Изаберите модул у левом панелу и отворите картицу **Sources**
-3. Означите директоријуме:
-   - Кликните десним тастером на `src` → **Mark as: Sources** (плава боја)
-   - Кликните десним тастером на `resources` → **Mark as: Resources** (жута боја са иконом)
-4. Кликните **Apply**
-
-> **Важно:** Директоријум `resources` мора бити означен као Resources да би `persistence.xml`, XML и properties датотеке биле доступне на classpath-у током извршавања.
-
-### Корак 4 — Додавање библиотека (JAR датотека)
-
-У истом прозору **Project Structure**, одаберите одељак **Libraries**:
-
-1. Кликните **+** → **Java**
-2. Пронађите директоријум `lib/junit/` и означите **све JAR датотеке** унутра → кликните **OK**
-3. Дајте библиотеци име `junit` → кликните **OK**
-4. Поновите поступак (кораке 1–3) за сваки поддиректоријум у `lib/`:
-
-| Библиотека | Директоријум | Све JAR датотеке |
-|------------|-------------|:----------------:|
-| `junit` | `lib/junit/` | да (11 датотека) |
-| `jackson` | `lib/jackson/` | да (5 датотека) |
-| `h2` | `lib/h2/` | да (1 датотека) |
-| `hikari` | `lib/hikari/` | да (3 датотеке) |
-| `hibernate` | `lib/hibernate/` | да (11 датотека) |
-| `servlet` | `lib/servlet/` | да (1 датотека) |
-| `jersey` | `lib/jersey/` | да (17 датотека) |
-| `javafx` | `lib/javafx/<платформа>/` | да — видети напомену испод |
-
-> **JavaFX — избор платформе:**
-> - На **macOS**: додајте JAR датотеке из `lib/javafx/mac/`
-> - На **Windows**: додајте JAR датотеке из `lib/javafx/win/`
-> - На **Linux**: додајте JAR датотеке из `lib/javafx/linux/`
->
-> Додајте **само** директоријум за своју платформу.
-
-5. Проверите да се све библиотеке појављују у одељку **Modules → Dependencies** са квачицом ✓
-6. Кликните **Apply**, затим **OK**
-
-### Корак 5 — Подешавање кодирања (UTF-8)
+### Корак 3 — Подешавање кодирања (UTF-8)
 
 Ово је неопходно за исправан приказ ћирилице:
 
@@ -145,7 +94,7 @@ tom2/
    - **Default encoding for properties files**: `UTF-8`
 4. Кликните **Apply**, затим **OK**
 
-### Корак 6 — Покретање примера
+### Корак 4 — Покретање примера
 
 **Обични примери (главе 1–4, 6–18 осим JavaFX):**
 
@@ -156,75 +105,52 @@ tom2/
 
 **JavaFX примери (глава 5):**
 
-JavaFX примери захтевају додатне VM опције. За сваки JavaFX пример:
-
-1. Кликните десним тастером на датотеку → **Run** (прво покретање ће вероватно јавити грешку)
-2. Отворите **Run → Edit Configurations...**
-3. Изаберите конфигурацију за JavaFX пример
-4. У поље **VM options** додајте (или **Modify options → Add VM options** ако поље није видљиво):
-
-   На **macOS**:
-   ```
-   --module-path lib/javafx/mac --add-modules javafx.controls,javafx.fxml
-   ```
-   На **Windows**:
-   ```
-   --module-path lib/javafx/win --add-modules javafx.controls,javafx.fxml
-   ```
-   На **Linux**:
-   ```
-   --module-path lib/javafx/linux --add-modules javafx.controls,javafx.fxml
-   ```
-
-5. Кликните **Apply**, затим **OK** и поново покрените пример
-
-> **Савет:** Можете копирати VM опције из једне конфигурације у другу да не куцате поново за сваки JavaFX пример.
+JavaFX библиотеке се аутоматски преузимају и конфигуришу преко Gradle-а. Покрените JavaFX примере на исти начин као и остале — десни клик → Run.
 
 ## Подешавање пројекта у Eclipse
 
 ### Корак 1 — Увоз пројекта
 
 1. Покрените Eclipse
-2. Изаберите **File → Import... → General → Existing Projects into Workspace**
+2. Изаберите **File → Import... → Gradle → Existing Gradle Project**
 3. Кликните **Browse...** и пронађите клонирани директоријум
-4. Ако Eclipse не препозна пројекат, изаберите **File → New → Java Project**, уклоните квачицу **Use default location** и наведите путању до клонираног директоријума
+4. Кликните **Finish** — Eclipse ће аутоматски покренути Gradle и преузети све библиотеке
 
-### Корак 2 — Подешавање JDK и изворних директоријума
+### Корак 2 — Подешавање JDK
 
 1. Кликните десним тастером на пројекат → **Properties → Java Build Path**
-2. Картица **Source**:
-   - Додајте `src` као изворни директоријум
-   - Додајте `resources` као изворни директоријум
-3. Картица **Libraries**:
-   - Подесите **JRE System Library** на JDK 25
-   - Кликните **Add JARs...** и додајте све JAR датотеке из сваког поддиректоријума у `lib/` (исто као у Кораку 4 за IntelliJ)
-   - За `lib/javafx/` додајте само JAR датотеке за своју платформу
+2. Картица **Libraries**: подесите **JRE System Library** на JDK 25
 
 ### Корак 3 — Кодирање
 
 1. Кликните десним тастером на пројекат → **Properties → Resource**
 2. Подесите **Text file encoding** на `UTF-8`
 
-### Корак 4 — JavaFX конфигурација
+## Библиотеке
 
-1. Кликните десним тастером на JavaFX класу → **Run As → Run Configurations...**
-2. Картица **Arguments → VM arguments**:
-   ```
-   --module-path lib/javafx/<платформа> --add-modules javafx.controls,javafx.fxml
-   ```
-   (замените `<платформа>` са `mac`, `win` или `linux`)
+Све библиотеке се аутоматски преузимају преко Gradle-а (дефинисане у `build.gradle`):
+
+| Библиотека | Главе | Намена |
+|------------|-------|--------|
+| JUnit Jupiter 5.14 | 13 | Оквир за јединично тестирање |
+| Jackson Databind 2.18 | 7, 18 | JSON серијализација/десеријализација |
+| H2 Database 2.3 | 14 | In-memory база података за JDBC примере |
+| HikariCP 6.2 | 14 | Скуп конекција са базом података |
+| Hibernate 6.6 | 16 | JPA провајдер за ORM примере |
+| Jakarta Servlet API 6.1 | 17 | API за сервлет примере |
+| Jersey 3.1 + Grizzly 4.0 | 18 | JAX-RS имплементација и HTTP сервер за REST примере |
+| JavaFX 25 | 5 | Графички оквир (аутоматски за текућу платформу) |
 
 ## Решавање честих проблема
 
 | Проблем | Решење |
 |---------|--------|
-| `error: package javafx.* does not exist` | Нисте додали JavaFX JAR датотеке или недостају VM опције `--module-path` и `--add-modules` |
-| `ClassNotFoundException: org.junit.jupiter.*` | Додајте све JAR датотеке из `lib/junit/` у библиотеке пројекта |
-| Ћирилица се приказује као `????` или `ÐÐ°Ð¼Ð¾` | Подесите кодирање на UTF-8 (Корак 5 у IntelliJ упутству) |
-| `persistence.xml not found` | Директоријум `resources` мора бити означен као **Resources** (не Sources) |
-| `NoClassDefFoundError: org/hibernate/*` | Додајте **све** JAR датотеке из `lib/hibernate/` (укључујући `hibernate-commons-annotations` и `jakarta.xml.bind-api`) |
-| JavaFX пример се не покреће на Windows/Linux | Проверите да користите `lib/javafx/win/` односно `lib/javafx/linux/` уместо `mac/` |
+| `Could not resolve dependencies` | Проверите интернет конекцију — Gradle преузима библиотеке са интернета |
+| Ћирилица се приказује као `????` или `ÐÐ°Ð¼Ð¾` | Подесите кодирање на UTF-8 (Корак 3 у IntelliJ упутству) |
+| `persistence.xml not found` | Покрените `./gradlew build` да се ресурси правилно копирају |
 | `error: release version 25 not supported` | Инсталирајте JDK 25 и подесите га као Project SDK |
+| IntelliJ не препознаје Gradle | Изаберите **File → Open**, не File → New — IntelliJ мора да види `build.gradle` |
+| `gradlew: Permission denied` (macOS/Linux) | Покрените `chmod +x gradlew` у терминалу |
 
 ## Аутори
 
