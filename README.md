@@ -73,7 +73,7 @@ tom2/
 
 1. Клонирајте репозиторијум:
    ```
-   git clone https://github.com/vladofilipovic/UdzbenikJava2.git
+   git clone https://github.com/matf-oop-java/tom-2.git
    ```
 2. Покрените IntelliJ IDEA
 3. Изаберите **File → Open...**
